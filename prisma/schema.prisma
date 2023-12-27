@@ -1,0 +1,162 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Groups {
+  id       Int     @id @default(autoincrement())
+  status   Boolean @default(true)
+  name     String
+  note     String?
+  parentId Int?
+
+  parent Groups? @relation("Groups_GroupsParent", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  Groups       Groups[]       @relation("Groups_GroupsParent")
+  Tenancy      Tenancy[]
+  User         User[]
+  OsType       TypeOs[]
+  Person       Person[]
+  Service      Service[]
+  OrderService OrderService[]
+
+  @@map("Groups")
+}
+
+model Tenancy {
+  id            Int     @id @default(autoincrement())
+  status        Boolean @default(true)
+  document      String  @db.VarChar(20)
+  corporateName String  @db.VarChar(150)
+  socialName    String  @db.VarChar(150)
+  situationId   Int
+  phone         String  @db.VarChar(20)
+  email         String  @db.VarChar(150)
+  zipCode       String  @db.VarChar(8)
+  address       String  @db.VarChar(50)
+  numberAddress String  @db.VarChar(10)
+  complement    String  @db.VarChar(45)
+  district      String  @db.VarChar(50)
+  city          String  @db.VarChar(60)
+  state         String  @db.VarChar(2)
+  codeIBGE      Int
+
+  situation Groups @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  UserTenancy  UserTenancy[]
+  TypeOs       TypeOs[]
+  Person       Person[]
+  Service      Service[]
+  OrderService OrderService[]
+
+  @@map("tbTenancy")
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  status      Boolean       @default(true)
+  situationId Int
+  name        String        @db.VarChar(100)
+  email       String        @db.VarChar(150)
+  password    String        @db.VarChar(255)
+  UserTenancy UserTenancy[]
+
+  situation Groups @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("tbUser")
+}
+
+model UserTenancy {
+  id        Int @id @default(autoincrement())
+  tenancyId Int
+  userId    Int
+
+  tenancy Tenancy @relation(fields: [tenancyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user    User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("tbUserTenancy")
+}
+
+model TypeOs {
+  id           Int            @id @default(autoincrement())
+  status       Boolean        @default(true)
+  description  String         @db.VarChar(50)
+  invoice      Boolean        @default(false)
+  tenancyId    Int
+  situationId  Int
+  situation    Groups         @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenancy      Tenancy        @relation(fields: [tenancyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  OrderService OrderService[]
+
+  @@map("tbTypeOs")
+}
+
+model Person {
+  id            Int     @id @default(autoincrement())
+  status        Boolean @default(true)
+  tenancyId     Int
+  reference     String  @db.VarChar(20)
+  document      String  @db.VarChar(20)
+  corporateName String  @db.VarChar(150)
+  socialName    String  @db.VarChar(150)
+  situationId   Int
+  phone         String  @db.VarChar(20)
+  email         String  @db.VarChar(150)
+  zipCode       String  @db.VarChar(8)
+  address       String  @db.VarChar(50)
+  numberAddress String  @db.VarChar(10)
+  complement    String  @db.VarChar(45)
+  district      String  @db.VarChar(50)
+  city          String  @db.VarChar(60)
+  state         String  @db.VarChar(2)
+  codeIBGE      Int
+
+  tenancy      Tenancy        @relation(fields: [tenancyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  situation    Groups         @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  OrderService OrderService[]
+
+  @@map("tbPerson")
+}
+
+model Service {
+  id          Int     @id @default(autoincrement())
+  status      Boolean @default(true)
+  tenancyId   Int
+  situationId Int
+  reference   Int
+  price       Decimal
+
+  tenancy   Tenancy @relation(fields: [tenancyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  situation Groups  @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("tbService")
+}
+
+model OrderService {
+  id             Int       @id @default(autoincrement())
+  status         Boolean   @default(true)
+  tenancyId      Int
+  situationId    Int
+  customerId     Int
+  typeOsId       Int
+  dateCreated    DateTime  @default(now())
+  dateAppoint    DateTime?
+  dateService    DateTime?
+  codeOS         String    @default(cuid())
+  amountService  Decimal   @default(0)
+  amountDiscount Decimal   @default(0)
+  amount         Decimal   @default(0)
+  note           String?   @db.VarChar(255)
+
+  tenancy   Tenancy @relation(fields: [tenancyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  situation Groups  @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer  Person  @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  typeOs    TypeOs  @relation(fields: [typeOsId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
