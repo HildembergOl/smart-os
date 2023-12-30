@@ -1,11 +1,13 @@
-import { HtmlHTMLAttributes } from 'react'
+import { HtmlHTMLAttributes, MenuHTMLAttributes } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
-const containerVariants = cva('', {
+const menuVariants = cva('', {
   variants: {
     variant: {
       default: '',
+      submenu: '',
+      options: '',
     },
     size: {
       default: '',
@@ -18,23 +20,21 @@ const containerVariants = cva('', {
 })
 
 interface ComponentsContainerProps
-  extends HtmlHTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof containerVariants> {
+  extends VariantProps<typeof menuVariants>,
+    HtmlHTMLAttributes<HTMLElement> {
   children: React.ReactNode
 }
-export const UiContainer = ({
-  children,
+
+export const UiMenu = ({
   className,
   size,
   variant,
+  children,
   ...props
 }: ComponentsContainerProps) => {
   return (
-    <div
-      className={cn(containerVariants({ variant, size, className }))}
-      {...props}
-    >
+    <menu className={cn(menuVariants({ variant, size, className }))} {...props}>
       {children}
-    </div>
+    </menu>
   )
 }

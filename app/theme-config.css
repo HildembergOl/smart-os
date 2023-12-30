@@ -1,9 +1,0 @@
-/* theme-config.css */
-.radix-themes {
-  --default-font-size: 18px;
-  --font-weight-light: 200;
-  --font-weight-regular: 300;
-  --font-weight-medium: 600;
-  --font-weight-bold: 800;
-  --default-font-family: var(--font-inter);
-}

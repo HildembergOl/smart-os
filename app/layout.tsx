@@ -1,36 +1,29 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Theme } from "@radix-ui/themes";
-import "@radix-ui/themes/styles.css";
-import "./theme-config.css";
-import { ThemeProvider } from "@/providers/theme.providers";
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { MainProvider } from '@/providers/MainProvider'
 
 const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
-  title: "SmartOs",
-  description: "DevSmart soluções empresariais",
-};
+  title: 'SmartOs - DevSmart Soluções',
+  description: 'DevSmart soluções empresariais',
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="pt-Br" suppressHydrationWarning>
       <body className={inter.variable}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Theme appearance="light" accentColor="amber" scaling="90%">
-            {children}
-          </Theme>
-        </ThemeProvider>
+        <MainProvider>{children}</MainProvider>
       </body>
     </html>
-  );
+  )
 }

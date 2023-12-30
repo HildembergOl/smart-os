@@ -103,9 +103,9 @@ model Person {
   status        Boolean @default(true)
   tenancyId     Int
   reference     String  @db.VarChar(20)
-  document      String  @db.VarChar(20)
   corporateName String  @db.VarChar(150)
   socialName    String  @db.VarChar(150)
+  document      String  @db.VarChar(20)
   situationId   Int
   phone         String  @db.VarChar(20)
   email         String  @db.VarChar(150)
