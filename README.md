@@ -2,6 +2,11 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
+Icons:
+|Stroke Width: 1.5
+Size: 48px
+https://lucide.dev/icons/download
+
 Palete Colors:
 https://coolors.co/ffe74c-2c4251-d16666-c5d1eb-92afd7
 

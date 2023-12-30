@@ -130,7 +130,7 @@ const Page = () => {
                 <TableHead>Bairro</TableHead>
                 <TableHead>Cidade</TableHead>
                 <TableHead>Estado</TableHead>
-                <TableHead>Ações</TableHead>
+                <TableHead className="text-center">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -156,7 +156,7 @@ const Page = () => {
                     <TableCell>{person.city}</TableCell>
                     <TableCell>{person.state}</TableCell>
                     <TableCell>
-                      <UiContainer className="flex flex-row w-28 py-2 items-center gap-2">
+                      <UiContainer className="flex flex-row p-2 items-center gap-2 justify-evenly">
                         <UiButton
                           variant={'primary'}
                           size={'sm'}
