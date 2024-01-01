@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url      = env("DEVELOPER_URL")
 }
 
 model Groups {
@@ -102,21 +102,21 @@ model Person {
   id            Int     @id @default(autoincrement())
   status        Boolean @default(true)
   tenancyId     Int
-  reference     String  @db.VarChar(20)
+  situationId   Int
+  reference     String? @db.VarChar(20)
   corporateName String  @db.VarChar(150)
   socialName    String  @db.VarChar(150)
   document      String  @db.VarChar(20)
-  situationId   Int
   phone         String  @db.VarChar(20)
   email         String  @db.VarChar(150)
-  zipCode       String  @db.VarChar(8)
-  address       String  @db.VarChar(50)
-  numberAddress String  @db.VarChar(10)
-  complement    String  @db.VarChar(45)
-  district      String  @db.VarChar(50)
-  city          String  @db.VarChar(60)
-  state         String  @db.VarChar(2)
-  codeIBGE      Int
+  zipCode       String? @db.VarChar(8)
+  address       String? @db.VarChar(50)
+  numberAddress String? @db.VarChar(10)
+  complement    String? @db.VarChar(45)
+  district      String? @db.VarChar(50)
+  city          String? @db.VarChar(60)
+  state         String? @db.VarChar(2)
+  codeIBGE      Int?
 
   tenancy      Tenancy        @relation(fields: [tenancyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   situation    Groups         @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -159,4 +159,37 @@ model OrderService {
   situation Groups  @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   customer  Person  @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   typeOs    TypeOs  @relation(fields: [typeOsId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("tbOrderService")
+}
+
+model IbgeState {
+  id      Int        @id
+  name    String     @db.VarChar(50)
+  acronym String     @db.VarChar(2)
+  City    IbgeCity[]
+
+  @@map("tbIbgeState")
+}
+
+model IbgeCity {
+  id      Int    @id
+  name    String @db.VarChar(50)
+  stateId Int
+
+  state IbgeState @relation(fields: [stateId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  District IbgeDistrict[]
+
+  @@map("tbIbgeCity")
+}
+
+model IbgeDistrict {
+  id     Int    @id
+  name   String @db.VarChar(50)
+  cityId Int
+
+  city IbgeCity @relation(fields: [cityId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("tbIbgeDistrict")
 }

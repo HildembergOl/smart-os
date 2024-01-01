@@ -71,6 +71,7 @@ export const UiMenuComponent = () => {
               className="cursor-pointer"
               size={30}
               name={'search'}
+              strokeWidth={1.5}
               onClick={() => handleOpenMenu()}
             />
           )}

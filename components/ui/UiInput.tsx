@@ -3,14 +3,14 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const inputVariants = cva(
-  'w-full rounded-md py-1.5 pl-2 pr-4 text-gray-900 ring-1 ring-inset ring-gray-500 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6',
+  'rounded-md py-1.5 pl-2 pr-4 text-gray-900 ring-1 ring-inset ring-gray-500 border-0 border-transparent placeholder:text-gray-400 focus:ring-2 focus:ring-amber-500 outline-none focus:ring-inset sm:text-sm sm:leading-6 data-[valid=false]:ring-red-600 disabled:bg-black/10',
   {
     variants: {
       variant: {
         default: '',
       },
       scale: {
-        default: '',
+        default: 'w-full',
       },
     },
     defaultVariants: {

@@ -8,9 +8,14 @@
       "version": "detect"
     }
   },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js"],
+      "parser": "@typescript-eslint/parser"
+    }
+  ],
   "extends": [
     "next/core-web-vitals",
-    "plugin:storybook/recommended",
     "eslint:recommended",
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended",
@@ -27,7 +32,7 @@
   "plugins": ["@typescript-eslint", "react", "react-hooks"],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
+    "react-hooks/exhaustive-deps": ["warn"],
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "tailwindcss/no-custom-classname": "off",
