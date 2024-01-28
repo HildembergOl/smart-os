@@ -36,16 +36,16 @@ export const MenuItem = ({ isMenu = false, data, children }: MenuItemProps) => {
           <UiMenu
             variant={'options'}
             className={
-              'flex flex-col w-full gap-1 justify-center cursor-pointer rounded-md bg-gray-100 border-[1px]'
+              'mb-2 flex w-full cursor-pointer flex-col justify-center gap-1 rounded-md border-[1px] bg-gray-100'
             }
           >
             <li
               className={
-                'flex flex-row w-full justify-between items-center py-2'
+                'flex w-full flex-row items-start justify-between py-2'
               }
               onClick={() => setMenuId(id)}
             >
-              <div className="flex flex-row justify-start gap-2">
+              <div className="flex flex-row justify-center gap-2">
                 <Image
                   className={`cursor-pointer ${openMenu ? 'pl-3' : 'mt-2'}`}
                   data-id={2}
@@ -59,14 +59,14 @@ export const MenuItem = ({ isMenu = false, data, children }: MenuItemProps) => {
                 <span className="ml-2">{label}</span>
               </div>
               <Image
-                className={`mr-3 ${openMenu ? 'rotate-180' : ''}`}
+                className={`mr-3 ${menuOpen ? 'rotate-180' : ''}`}
                 width={20}
                 src={chevronDown}
                 alt={''}
               />
             </li>
             {menuOpen && (
-              <UiContainer className="p-2 bg-white ">{children}</UiContainer>
+              <UiContainer className="bg-white p-2 ">{children}</UiContainer>
             )}
           </UiMenu>
         )}
@@ -74,10 +74,10 @@ export const MenuItem = ({ isMenu = false, data, children }: MenuItemProps) => {
     )
   }
   return (
-    <li className="flex flex-row w-full justify-between items-center my-1">
+    <li className="my-1 flex w-full flex-row items-start justify-between">
       <Link
         href={src}
-        className="flex flex-row justify-start w-full mb-1 gap-2"
+        className="mb-1 flex w-full flex-row items-center justify-start gap-2"
         onClick={() => handleOpenMenu()}
       >
         {icon && (

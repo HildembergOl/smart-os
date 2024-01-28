@@ -6,7 +6,7 @@ const containerVariants = cva('bg-white', {
   variants: {
     variant: {
       default: '',
-      page: 'p-2 h-full w-full flex flex-col mb-4 gap-2 overflow-auto',
+      page: 'mb-4 flex h-full w-full flex-col gap-2 overflow-auto p-2',
     },
     size: {
       default: '',

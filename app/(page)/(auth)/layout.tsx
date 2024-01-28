@@ -12,9 +12,9 @@ export default function RootLayout({
 }) {
   return (
     <UiMain>
-      <UiContainer className="flex flex-row w-full h-full">
+      <UiContainer className="flex h-full w-full flex-row">
         <UiMenuComponent />
-        <UiContainer className="flex flex-col w-full h-full max-w-full">
+        <UiContainer className="flex h-full w-full max-w-full flex-col">
           <MainHeaderComponent />
           {children}
         </UiContainer>

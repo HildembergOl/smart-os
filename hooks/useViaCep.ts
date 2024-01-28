@@ -1,6 +1,6 @@
 'use client'
 import api from '@/lib/api'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type useSearchCepProps = {
   cep: string
@@ -16,33 +16,28 @@ type useSearchCepProps = {
   erro?: boolean
 }
 
-let timeUpdate: NodeJS.Timeout
-
-export const useSearchCep = () => {
+export const useSearchCep = (zipCode: string | null) => {
   const [dataCep, setDataCep] = useState<useSearchCepProps | null>(null)
-  const [search, setSearch] = useState<string>()
+  const [search, setSearch] = useState<string>('')
 
-  const setSearchCep = (search: string) => {
-    clearTimeout(timeUpdate)
-    if (search.length === 8) {
-      timeUpdate = setTimeout(() => setSearch(search), 1000)
-    }
-  }
+  const getCepSearch = async (): Promise<useSearchCepProps | null> => {
+    if (!search) return null
 
-  const getCepSearch = useCallback(async () => {
     const response = await api.get(`https://viacep.com.br/ws/${search}/json/`)
 
     if (response.status === 200 && response.data.cep) {
-      return setDataCep(response.data)
+      setDataCep(response.data)
+      return response.data
     }
     setDataCep(null)
-  }, [search])
+    return null
+  }
 
   useEffect(() => {
-    if (search) {
-      getCepSearch()
+    if (zipCode?.length === 8) {
+      setSearch(() => zipCode)
     }
-  }, [getCepSearch, search])
+  }, [zipCode])
 
-  return { setSearchCep, dataCep }
+  return { dataCep, getCepSearch }
 }

@@ -1,6 +1,5 @@
 'use client'
 import Icon from '@/components/Icon'
-import { Indicator } from '@/components/Indicator'
 import { UiButton } from '@/components/ui/UiButton'
 import {
   UiCard,
@@ -20,34 +19,72 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { dataPerson } from '@/constants/api-person'
+import { toast } from '@/components/ui/use-toast'
+import api from '@/lib/api'
+import { PersonDataProps } from '@/prisma/zod/PersonSchema'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
 type InputSearchProps = {
   id: string
-  name: string
+  tenancyId: number
+  corporateName: string
+  socialName: string
   address: string
   city: string
   document: string
   district: string
 }
 
-const Page = () => {
-  const [open, setOpen] = useState<boolean>(false)
+export default function Page() {
+  const [open, setOpen] = useState<boolean>(true)
+  const [dataPerson, setDataPerson] = useState<PersonDataProps[]>([])
+  const [params, setParams] = useState<Partial<InputSearchProps>>({
+    tenancyId: 1,
+  })
+
   const router = useRouter()
-  const {
-    handleSubmit,
-    getValues,
-    register,
-    formState: { errors },
-    reset,
-  } = useForm<InputSearchProps>()
+  const { handleSubmit, register, reset } = useForm<InputSearchProps>({
+    defaultValues: params,
+  })
+
   const searchValues: SubmitHandler<InputSearchProps> = (data) => {
-    console.log(data)
+    setParams(() => data)
   }
-  console.log(errors)
+
+  const getPersonData = useCallback(async () => {
+    const personData = await api
+      .get('/persons', {
+        params,
+      })
+      .then((res) => res)
+      .catch((err) => err.response)
+
+    const { persons, error } = personData.data
+
+    if (error) {
+      return toast({
+        variant: 'destructive',
+        title: 'Buscar Pessoas',
+        description: 'Não foi possível buscar os dados, verifique.',
+      })
+    }
+
+    if (personData.status === 200) {
+      return setDataPerson(persons)
+    }
+
+    return toast({
+      variant: 'destructive',
+      title: 'Buscar Pessoas',
+      description: 'Erro nao identificado, verifique.',
+    })
+  }, [params])
+
+  useEffect(() => {
+    getPersonData()
+  }, [getPersonData])
 
   return (
     <UiContainer className="relative" variant={'page'}>
@@ -61,13 +98,13 @@ const Page = () => {
           </UiCardHeader>
         </UiCard>
         <UiCard className="sticky top-0">
-          <UiContainer className="flex flex-row p-4 gap-2 items-center">
+          <UiContainer className="flex flex-row items-center gap-2 p-4">
             <span className="flex items-center justify-center text-2xl font-semibold">
               Pesquisar
             </span>
             <Icon
               size={20}
-              className={`items-baseline justify-start transition ease-in-out duration-700 ${
+              className={`items-baseline justify-start transition duration-700 ease-in-out ${
                 open ? 'rotate-180' : ''
               }`}
               name="arrow-down-right-square"
@@ -84,7 +121,10 @@ const Page = () => {
                   <UiInput className="col-span-1" {...register('id')} />
                 </UiInputGroup>
                 <UiInputGroup label={'Nome Pessoa'}>
-                  <UiInput className="col-span-1" {...register('name')} />
+                  <UiInput
+                    className="col-span-1"
+                    {...register('corporateName')}
+                  />
                 </UiInputGroup>
                 <UiInputGroup label={'Documento'}>
                   <UiInput className="col-span-1" {...register('document')} />
@@ -116,10 +156,11 @@ const Page = () => {
         </UiCard>
       </UiContainer>
       <UiContainer className="relative">
-        <UiCard className="absolute flex flex-col w-full overflow-x-auto overflow-y-auto">
+        <UiCard className="absolute flex w-full flex-col overflow-auto">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Código</TableHead>
                 <TableHead>Referencia</TableHead>
                 <TableHead>Razão Social</TableHead>
                 <TableHead>Fantasia</TableHead>
@@ -134,20 +175,15 @@ const Page = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dataPerson.map((person, i) => {
+              {dataPerson.map((person) => {
                 return (
-                  <TableRow key={person.document + i}>
+                  <TableRow key={person.id}>
                     <TableCell>
-                      {person.reference + ' ' + i.toString().padStart(3, '0')}
+                      {person.id?.toString().padStart(5, '0')}
                     </TableCell>
-                    <TableCell>
-                      {person.corporateName +
-                        ' ' +
-                        i.toString().padStart(3, '0')}
-                    </TableCell>
-                    <TableCell>
-                      {person.socialName + ' ' + i.toString().padStart(3, '0')}
-                    </TableCell>
+                    <TableCell>{person.reference}</TableCell>
+                    <TableCell>{person.corporateName}</TableCell>
+                    <TableCell>{person.socialName}</TableCell>
                     <TableCell>{person.document}</TableCell>
                     <TableCell>{person.phone}</TableCell>
                     <TableCell>{person.email}</TableCell>
@@ -156,12 +192,12 @@ const Page = () => {
                     <TableCell>{person.city}</TableCell>
                     <TableCell>{person.state}</TableCell>
                     <TableCell>
-                      <UiContainer className="flex flex-row p-2 items-center gap-2 justify-evenly">
+                      <UiContainer className="flex flex-row items-center justify-evenly gap-2 p-2">
                         <UiButton
                           variant={'primary'}
                           size={'sm'}
                           onClick={() =>
-                            router.push(`persons/edit?id=${person.reference}`)
+                            router.push(`persons/edit?id=${person.id}`)
                           }
                         >
                           Editar
@@ -183,4 +219,3 @@ const Page = () => {
     </UiContainer>
   )
 }
-export default Page

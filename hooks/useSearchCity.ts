@@ -15,10 +15,10 @@ export const useSearchCity = () => {
   const [city, setCity] = useState<useSearchCityProps[]>([])
   const [search, setSearch] = useState<string>()
 
-  const setSearchCity = (search: string) => {
+  const setSearchCity = (value: string) => {
     clearTimeout(timeUpdate)
-    if (search.length > 3) {
-      timeUpdate = setTimeout(() => setSearch(() => search), 1000)
+    if (value.length > 3) {
+      timeUpdate = setTimeout(() => setSearch(() => value), 1000)
     }
   }
 
@@ -37,5 +37,5 @@ export const useSearchCity = () => {
     }
   }, [getCitySearch, search])
 
-  return { setSearchCity, city }
+  return { setSearchCity, city, getCitySearch, setCity }
 }

@@ -30,11 +30,11 @@ const prisma =
   })
 
 // ACTIVATE LOG OF SELECTS ON PRISMA
-// prisma.$on('query', (e) => {
-//   console.log('Query: ' + e.query)
-//   console.log('Params: ' + e.params)
-//   console.log('Duration: ' + e.duration + 'ms')
-// })
+prisma.$on('query', (e) => {
+  console.log('Query: ' + e.query)
+  console.log('Params: ' + e.params)
+  console.log('Duration: ' + e.duration + 'ms')
+})
 
 if (process.env.NODE_ENV !== 'production') {
   global.prisma = prisma

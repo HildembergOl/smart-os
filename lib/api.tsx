@@ -8,6 +8,5 @@ const api = axios.create()
 
 api.defaults.baseURL = 'http://localhost:3000/api/'
 api.defaults.headers['Access-Control-Allow-Origin'] = '*'
-api.defaults.timeout = 10000
 
 export default api

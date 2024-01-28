@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma'
 
 interface PageRouteProps {
   page: string
-  parent: string
+  parentId: string
   id: string
 }
 
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   const res = NextResponse
   const query = req.nextUrl.searchParams
   const queryParams = Object.fromEntries(query) as unknown as PageRouteProps
-  const { parent, page, id } = queryParams
+  const { parentId, page, id } = queryParams
 
   const take = 10
   const skip = (parseInt(page) - 1) * take || undefined
@@ -30,12 +30,12 @@ export async function GET(req: NextRequest) {
         AND: [
           {
             id: {
-              equals: parseInt(id) || undefined,
+              equals: parseInt(id) ? parseInt(id) : undefined,
             },
           },
           {
             parentId: {
-              equals: parseInt(parent) || undefined,
+              equals: parseInt(parentId) ? parseInt(parentId) : undefined,
             },
           },
         ],

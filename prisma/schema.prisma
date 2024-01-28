@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DEVELOPER_URL")
+  provider          = "mysql"
+  url               = env("PRISMA_URL")
+  // shadowDatabaseUrl = env("DEVELOPER_URL")
 }
 
 model Groups {
@@ -19,13 +20,14 @@ model Groups {
 
   parent Groups? @relation("Groups_GroupsParent", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  Groups       Groups[]       @relation("Groups_GroupsParent")
-  Tenancy      Tenancy[]
-  User         User[]
-  OsType       TypeOs[]
-  Person       Person[]
-  Service      Service[]
-  OrderService OrderService[]
+  Groups           Groups[]           @relation("Groups_GroupsParent")
+  Tenancy          Tenancy[]
+  User             User[]
+  OsType           TypeOs[]
+  Person           Person[]
+  Service          Service[]
+  OrderService     OrderService[]
+  OrderServiceItem OrderServiceItem[]
 
   @@map("Groups")
 }
@@ -33,22 +35,23 @@ model Groups {
 model Tenancy {
   id            Int     @id @default(autoincrement())
   status        Boolean @default(true)
+  situationId   Int
   document      String  @db.VarChar(20)
   corporateName String  @db.VarChar(150)
   socialName    String  @db.VarChar(150)
-  situationId   Int
-  phone         String  @db.VarChar(20)
   email         String  @db.VarChar(150)
-  zipCode       String  @db.VarChar(8)
-  address       String  @db.VarChar(50)
-  numberAddress String  @db.VarChar(10)
-  complement    String  @db.VarChar(45)
-  district      String  @db.VarChar(50)
-  city          String  @db.VarChar(60)
-  state         String  @db.VarChar(2)
-  codeIBGE      Int
+  phone         String? @db.VarChar(20)
+  zipCode       String? @db.VarChar(8)
+  address       String? @db.VarChar(50)
+  numberAddress String? @db.VarChar(10)
+  complement    String? @db.VarChar(45)
+  district      String? @db.VarChar(50)
+  city          String? @db.VarChar(60)
+  state         String? @db.VarChar(2)
+  codeIBGE      Int?
 
-  situation Groups @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  situation Groups        @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ibge      IbgeDistrict? @relation(fields: [codeIBGE], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   UserTenancy  UserTenancy[]
   TypeOs       TypeOs[]
@@ -118,8 +121,10 @@ model Person {
   state         String? @db.VarChar(2)
   codeIBGE      Int?
 
-  tenancy      Tenancy        @relation(fields: [tenancyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  situation    Groups         @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenancy   Tenancy       @relation(fields: [tenancyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  situation Groups        @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ibge      IbgeDistrict? @relation(fields: [codeIBGE], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
   OrderService OrderService[]
 
   @@map("tbPerson")
@@ -130,11 +135,14 @@ model Service {
   status      Boolean @default(true)
   tenancyId   Int
   situationId Int
-  reference   Int
-  price       Decimal
+  reference   String? @db.VarChar(20)
+  description String  @db.VarChar(80)
+  price       Float
 
   tenancy   Tenancy @relation(fields: [tenancyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   situation Groups  @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  orderServiceItem OrderServiceItem[]
 
   @@map("tbService")
 }
@@ -149,10 +157,10 @@ model OrderService {
   dateCreated    DateTime  @default(now())
   dateAppoint    DateTime?
   dateService    DateTime?
-  codeOS         String    @default(cuid())
-  amountService  Decimal   @default(0)
-  amountDiscount Decimal   @default(0)
-  amount         Decimal   @default(0)
+  codeOS         Int       @default(0)
+  amountService  Float     @default(0)
+  amountDiscount Float     @default(0)
+  amount         Float     @default(0)
   note           String?   @db.VarChar(255)
 
   tenancy   Tenancy @relation(fields: [tenancyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -160,14 +168,36 @@ model OrderService {
   customer  Person  @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   typeOs    TypeOs  @relation(fields: [typeOsId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  orderServiceItem OrderServiceItem[]
+
   @@map("tbOrderService")
 }
 
+model OrderServiceItem {
+  id             Int     @id @default(autoincrement())
+  status         Boolean @default(true)
+  orderServiceId Int
+  serviceId      Int
+  quantity       Float
+  price          Float
+  discount       Float
+  amount         Float
+  situationId    Int
+  note           String? @db.VarChar(255)
+
+  orderService OrderService @relation(fields: [orderServiceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  situation    Groups       @relation(fields: [situationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  service      Service      @relation(fields: [serviceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("tbOrderServiceItem")
+}
+
 model IbgeState {
-  id      Int        @id
-  name    String     @db.VarChar(50)
-  acronym String     @db.VarChar(2)
-  City    IbgeCity[]
+  id      Int    @id
+  name    String @db.VarChar(50)
+  acronym String @db.VarChar(2)
+
+  City IbgeCity[]
 
   @@map("tbIbgeState")
 }
@@ -190,6 +220,9 @@ model IbgeDistrict {
   cityId Int
 
   city IbgeCity @relation(fields: [cityId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  Person  Person[]
+  Tenancy Tenancy[]
 
   @@map("tbIbgeDistrict")
 }

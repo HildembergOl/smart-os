@@ -62,3 +62,6 @@ echo "MYSQLDUMP Finalizado em $DATA_FINAL" >> $LOG
 
 # Remove arquivos de backups antigos - 5 dias
 find $DIR_BK -type f -mtime +5 -exec rm -rf {} \;
+
+# recupera o arquivo de banco de dados
+# mysql -u$USER -p$PASS $db < $arquivo_de_backup_realizado.sql

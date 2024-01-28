@@ -1,15 +1,9 @@
-import {
-  HtmlHTMLAttributes,
-  InputHTMLAttributes,
-  OptionHTMLAttributes,
-  SelectHTMLAttributes,
-  forwardRef,
-} from 'react'
+import { OptionHTMLAttributes, SelectHTMLAttributes, forwardRef } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const selectVariants = cva(
-  'rounded-md py-1.5 pl-2 pr-4 text-gray-900 ring-1 ring-inset ring-gray-500 border-0 border-transparent placeholder:text-gray-400 focus:ring-2 focus:ring-amber-500 outline-none focus:ring-inset sm:text-sm sm:leading-6 data-[valid=false]:ring-red-600 disabled:bg-black/10',
+  'rounded-md border-0 border-transparent py-1.5 pl-2 pr-4 text-gray-900 outline-none ring-1 ring-inset ring-gray-500 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-amber-500 disabled:bg-black/10 data-[valid=false]:ring-red-600 sm:text-sm sm:leading-6',
   {
     variants: {
       variant: {
@@ -26,7 +20,7 @@ const selectVariants = cva(
   }
 )
 const optionsVariants = cva(
-  'w-full rounded-md py-1.5 pl-2 pr-2 text-gray-900 sm:text-sm sm:leading-6',
+  'h-20 w-full rounded-md px-2 py-1.5 text-gray-900 sm:text-sm sm:leading-6',
   {
     variants: {
       variant: {
@@ -51,13 +45,13 @@ export const UiSelect = forwardRef<HTMLSelectElement, UiSelectProps>(
   ({ className, scale, variant, name, children, ...props }, ref) => {
     return (
       <select
+        ref={ref}
         className={cn(selectVariants({ variant, scale, className }))}
         name={name}
-        ref={ref}
         autoComplete="off"
         {...props}
       >
-        <UiSelectOption value={''}></UiSelectOption>
+        <UiSelectOption value={''}>Todos</UiSelectOption>
         {children}
       </select>
     )
@@ -73,12 +67,12 @@ export interface UiSelectOptionProps
 export const UiSelectOption = forwardRef<
   HTMLOptionElement,
   UiSelectOptionProps
->(({ className, scale, variant, value, ...props }, ref = null) => {
+>(({ className, scale, variant, value, ...props }, ref) => {
   return (
     <option
+      ref={ref}
       value={value}
       className={cn(optionsVariants({ variant, scale, className }))}
-      ref={ref}
       {...props}
     />
   )

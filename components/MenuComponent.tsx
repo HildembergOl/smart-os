@@ -22,18 +22,18 @@ export const UiMenuComponent = () => {
 
   return (
     <UiContainer
-      className={`flex flex-col h-full rounded-r-lg p-2 border-r max-h-fit transition-all ease-in-out duration-1000 ${
-        openMenu ? 'w-72 fixed inset-0 max-md:w-full z-[1]' : 'w-14'
+      className={`flex h-full max-h-fit flex-col rounded-r-lg border-r p-2 transition-all duration-1000 ease-in-out ${
+        openMenu ? 'fixed inset-0 z-[1] w-72 max-md:w-full' : 'w-14'
       }`}
     >
-      <UiContainer className="flex flex-col h-full gap-2">
+      <UiContainer className="flex h-full flex-col gap-2">
         <UiContainer
           className={`flex flex-row ${
             openMenu ? 'justify-end' : 'justify-center'
           }`}
         >
           <Image
-            className="transition ease-in-out delay-150 hover:scale-110 cursor-pointer"
+            className="cursor-pointer transition delay-150 ease-in-out hover:scale-110"
             width={20}
             src={openMenu ? menuOpen : menuClose}
             alt="menu"
@@ -42,12 +42,12 @@ export const UiMenuComponent = () => {
         </UiContainer>
         <UiContainer
           className={`flex flex-col p-1  ${
-            openMenu ? 'my-10' : 'justify-start items-start'
+            openMenu ? 'my-10' : 'items-start justify-start'
           }`}
         >
           <Image
-            className={`flex flex-col cursor-pointer ${
-              openMenu ? '' : 'justify-start items-start'
+            className={`flex cursor-pointer flex-col ${
+              openMenu ? '' : 'items-start justify-start'
             }`}
             height={75}
             src={openMenu ? LogoLight : LogoIcon}
@@ -60,7 +60,7 @@ export const UiMenuComponent = () => {
         </UiContainer>
         <UiContainer
           className={`flex flex-col p-1 ${
-            openMenu ? '' : 'justify-start items-start mt-2'
+            openMenu ? '' : 'mt-2 items-center justify-center'
           }`}
           title="Pesquisar"
         >
@@ -77,8 +77,8 @@ export const UiMenuComponent = () => {
           )}
         </UiContainer>
         <UiContainer
-          className={`flex flex-col h-full flex-1 overflow-auto ${
-            openMenu ? 'p-1 ' : 'justify-start items-start gap-4'
+          className={`flex h-full flex-1 flex-col overflow-auto ${
+            openMenu ? 'p-1 ' : 'items-center justify-start gap-4'
           }`}
         >
           <MenuNested key={keyMenuNested} data={data} />
@@ -86,11 +86,11 @@ export const UiMenuComponent = () => {
         <Link
           href={'http://www.devsmart.com.br'}
           target="_blank"
-          className="flex flex-row w-full items-center justify-center border-t-2 py-2"
+          className="flex w-full flex-row items-center justify-center border-t-2 py-2"
         >
           <Image width={60} height={60} src={smart} alt={''} />
           {openMenu && (
-            <button className="flex w-full justify-center items-center font-medium">
+            <button className="flex w-full items-center justify-center font-medium">
               DevSmart Soluções
             </button>
           )}

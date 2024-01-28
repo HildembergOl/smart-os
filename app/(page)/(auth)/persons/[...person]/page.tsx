@@ -9,52 +9,151 @@ import {
 import { UiContainer } from '@/components/ui/UiContainer'
 import { UiInput } from '@/components/ui/UiInput'
 import { UiInputGroup } from '@/components/ui/UiInputGroup'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { PersonDataProps, PersonSchema } from '@/prisma/zod/PersonSchema'
 import { UiSelect, UiSelectOption } from '@/components/ui/UiSelect'
 import { useSituation } from '@/hooks/useSituation'
 import { useSearchCity } from '@/hooks/useSearchCity'
-import { ChangeEvent, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useSearchCep } from '@/hooks/useViaCep'
+import Icon from '@/components/Icon'
+import { zodResolver } from '@hookform/resolvers/zod'
+import api from '@/lib/api'
+import { useToast } from '@/components/ui/use-toast'
 
 type PageParamsProps = {
   params: { person: string[] }
   searchParams: { id: string }
 }
-const Page = (url: PageParamsProps) => {
-  const { situation } = useSituation()
-  const { city, setSearchCity } = useSearchCity()
-  const { dataCep, setSearchCep } = useSearchCep()
-
-  const type = url.params.person[0] as 'edit' | 'create'
-  const { id } = url.searchParams
+export default function Page({
+  params: { person },
+  searchParams: { id },
+}: PageParamsProps) {
   const router = useRouter()
+  const type = person[0]
+  const { toast } = useToast()
+  const { situation } = useSituation(-1)
+  const { city, setSearchCity, getCitySearch, setCity } = useSearchCity()
 
   const {
     handleSubmit,
     register,
     formState: { errors },
     watch,
-    setValue,
-    setFocus,
+    reset,
   } = useForm<PersonDataProps>({
     defaultValues: {
       tenancyId: 1,
     },
     resolver: zodResolver(PersonSchema),
   })
-  const submitPersonValues: SubmitHandler<PersonDataProps> = (data) => {
-    console.log('Data:', data)
+
+  const values = watch()
+  const { getCepSearch } = useSearchCep(watch('zipCode'))
+  const submitPersonValues: SubmitHandler<PersonDataProps> = async (data) => {
+    const {
+      id: idData,
+      status,
+      situationId,
+      tenancyId,
+      reference,
+      corporateName,
+      document,
+      email,
+      socialName,
+      address,
+      numberAddress,
+      city,
+      codeIBGE,
+      complement,
+      district,
+      state,
+      phone,
+      zipCode,
+    } = data
+    if (type === 'edit') {
+      const personData = await api
+        .put(`/persons/${id}`, {
+          id: idData,
+          status,
+          situationId,
+          tenancyId,
+          reference,
+          corporateName,
+          document,
+          email,
+          socialName,
+          address,
+          numberAddress,
+          city,
+          codeIBGE,
+          complement,
+          district,
+          state,
+          phone,
+          zipCode,
+        })
+        .then((res) => res)
+        .catch((err) => err.response)
+
+      const { error } = personData.data
+
+      if (error) {
+        return toast({
+          variant: 'destructive',
+          title: 'Pessoa - Atualizar',
+          description: 'Não foi possível atualizar, verifique.',
+        })
+      }
+
+      if (personData.status === 200) {
+        return toast({
+          description: 'Registro atualizado com sucesso',
+        })
+      }
+
+      return toast({
+        variant: 'destructive',
+        title: 'Pessoa - Atualizar',
+        description: 'Erro não identificado',
+      })
+    }
+
+    if (type === 'create') {
+      const person = await api
+        .post('persons', data)
+        .then((res) => res)
+        .catch((err) => err.response)
+
+      const { error, ...personData } = person.data
+
+      if (error) {
+        return toast({
+          variant: 'destructive',
+          title: 'Pessoa - Cadastrar',
+          description: 'Não foi possível cadastrar, verifique.',
+        })
+      }
+
+      if (person.status === 200) {
+        router.push(`edit?id=${personData.id}`)
+        return toast({
+          description: 'Registro criado com sucesso',
+        })
+      }
+
+      return toast({
+        variant: 'destructive',
+        title: 'Pessoa - Cadastrar',
+        description: 'Erro não identificado',
+      })
+    }
   }
 
-  const setCity = (event: ChangeEvent<HTMLSelectElement>) => {
-    const selected = event.target.value
-
+  const setCityData = (selected: string) => {
     if (!selected) {
-      setValue('codeIBGE', null)
-      return
+      return reset({ ...values, codeIBGE: null })
     }
 
     const {
@@ -65,24 +164,69 @@ const Page = (url: PageParamsProps) => {
     } = city.filter((el) => el.id === Number(selected))[0]
 
     if (selected && name && acronym) {
-      setValue('codeIBGE', Number(selected))
-      setValue('city', name.toUpperCase())
-      setValue('state', acronym.toUpperCase())
+      return reset({
+        ...values,
+        codeIBGE: Number(selected),
+        city: name.toUpperCase(),
+        state: acronym.toUpperCase(),
+      })
     }
   }
 
-  const setZipCode = () => {
-    if (dataCep) {
-      const { logradouro, bairro, complemento, localidade } = dataCep
-      setValue('address', logradouro.toUpperCase())
-      setValue('district', bairro.toUpperCase())
-      setValue('complement', complemento.toUpperCase())
-      setSearchCity(localidade)
-      setFocus('codeIBGE')
+  const dataPerson = useCallback(async () => {
+    if (!id) return
+
+    const personData = await api
+      .get(`/persons/${id}`, {
+        params: {
+          tenancyId: 1,
+        },
+      })
+      .then((res) => res)
+      .catch((err) => err.response)
+
+    const { error, ...person } = personData.data
+
+    if (error) {
+      return toast({
+        variant: 'destructive',
+        title: 'Buscar Pessoas',
+        description: 'Não foi possível buscar os dados, verifique.',
+      })
+    }
+
+    if (personData.status === 200) {
+      setCity(person.ibge ? [person.ibge] : [])
+      return reset(person)
+    }
+
+    return toast({
+      variant: 'destructive',
+      title: 'Buscar Pessoas',
+      description: 'Erro nao identificado, verifique.',
+    })
+  }, [id, reset, setCity, toast])
+
+  const getAddressForZipCode = async () => {
+    const data = await getCepSearch()
+
+    if (data) {
+      const { logradouro, bairro, complemento } = data
+      return reset({
+        ...values,
+        address: logradouro.toUpperCase(),
+        district: bairro.toUpperCase(),
+        complement: complemento.toUpperCase(),
+        codeIBGE: null,
+        city: '',
+        state: '',
+      })
     }
   }
 
-  console.log(errors)
+  useEffect(() => {
+    dataPerson()
+  }, [dataPerson])
 
   return (
     <UiContainer className="relative" variant={'page'}>
@@ -110,7 +254,7 @@ const Page = (url: PageParamsProps) => {
               Cadastro Básico
             </span>
             <UiInputGroup className="col-span-1" label={'Código'}>
-              <UiInput type="number" {...register('id')} />
+              <UiInput type="number" disabled {...register('id')} />
             </UiInputGroup>
             <UiInputGroup
               data-valid={!errors.situationId}
@@ -163,18 +307,14 @@ const Page = (url: PageParamsProps) => {
               <UiInput data-valid={!errors.email} {...register('email')} />
             </UiInputGroup>
             <UiInputGroup className="col-span-1" label={'Cep'}>
-              <UiInput
-                data-valid={!errors.zipCode}
-                {...register('zipCode', {
-                  onChange(event) {
-                    setSearchCep(event.target.value)
-                    setValue('zipCode', event.target.value)
-                  },
-                  onBlur() {
-                    setZipCode()
-                  },
-                })}
-              />
+              <UiInput data-valid={!errors.zipCode} {...register('zipCode')} />
+              <UiContainer className="flex items-center justify-center px-1">
+                <Icon
+                  name={'search'}
+                  className="cursor-pointer hover:scale-105"
+                  onClick={getAddressForZipCode}
+                />
+              </UiContainer>
             </UiInputGroup>
             <UiInputGroup className="col-span-4" label={'Endereço'}>
               <UiInput data-valid={!errors.address} {...register('address')} />
@@ -197,15 +337,25 @@ const Page = (url: PageParamsProps) => {
                 {...register('complement')}
               />
             </UiInputGroup>
-            <UiContainer className="col-span-3 grid grid-cols-4 gap-1">
+            <UiContainer className="col-span-4 grid grid-cols-4 gap-1">
               <UiInputGroup className="col-span-1" label={'Pesquisa'}>
                 <UiInput onChange={(e) => setSearchCity(e.target.value)} />
+                <UiContainer className="flex items-center justify-center px-1">
+                  <Icon
+                    name={'search'}
+                    className="cursor-pointer hover:scale-105"
+                    onClick={getCitySearch}
+                  />
+                </UiContainer>
               </UiInputGroup>
               <UiInputGroup className="col-span-3" label={'Cidade IBGE'}>
                 <UiSelect
                   className="w-full bg-white px-2"
-                  {...register('codeIBGE')}
-                  onChange={(e) => setCity(e)}
+                  {...register('codeIBGE', {
+                    onChange(event) {
+                      setCityData(event.target.value)
+                    },
+                  })}
                 >
                   {city.map((item) => {
                     const id = item.id
@@ -255,5 +405,3 @@ const Page = (url: PageParamsProps) => {
     </UiContainer>
   )
 }
-
-export default Page

@@ -1,9 +1,4 @@
-import {
-  Children,
-  InputHTMLAttributes,
-  SelectHTMLAttributes,
-  forwardRef,
-} from 'react'
+import { SelectHTMLAttributes, forwardRef } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
@@ -25,23 +20,23 @@ const inputSearchVariants = cva(
   }
 )
 
-export interface UiSelectProps
-  extends SelectHTMLAttributes<HTMLSelectElement>,
+export interface UiInputProps
+  extends SelectHTMLAttributes<HTMLInputElement>,
     VariantProps<typeof inputSearchVariants> {
   children: React.ReactNode
   type: 'search'
 }
 
-export const UiSearchInput = forwardRef<HTMLSelectElement, UiSelectProps>(
-  (
-    { className, scale, variant, name, type = 'search', children, ...props },
-    ref
-  ) => {
+export const UiSearchInput = forwardRef<HTMLInputElement, UiInputProps>(
+  ({ className, scale, variant, name, type = 'search', ...props }, ref) => {
     return (
       <input
         className={cn(inputSearchVariants({ variant, scale, className }))}
-        type={name}
+        ref={ref}
+        type={type}
+        name={name}
         autoComplete="off"
+        {...props}
       />
     )
   }

@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const inputVariants = cva(
-  'rounded-md py-1.5 pl-2 pr-4 text-gray-900 ring-1 ring-inset ring-gray-500 border-0 border-transparent placeholder:text-gray-400 focus:ring-2 focus:ring-amber-500 outline-none focus:ring-inset sm:text-sm sm:leading-6 data-[valid=false]:ring-red-600 disabled:bg-black/10',
+  'rounded-md border-0 border-transparent px-4 py-1.5 text-sm leading-6 text-gray-900 outline-none ring-1 ring-inset ring-gray-500 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-amber-500 disabled:bg-black/10 data-[valid=false]:ring-red-600',
   {
     variants: {
       variant: {
@@ -28,10 +28,10 @@ export const UiInput = forwardRef<HTMLInputElement, UiInputProps>(
   ({ className, scale, variant, name, type = 'text', ...props }, ref) => {
     return (
       <input
+        ref={ref}
         className={cn(inputVariants({ variant, scale, className }))}
         name={name}
-        type={name}
-        ref={ref}
+        type={type}
         autoComplete="off"
         {...props}
       ></input>
